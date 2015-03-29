@@ -1,0 +1,137 @@
+body {
+	background-color:#eee;
+	padding: 10px 50px;
+}
+
+body > div:first-child {
+	text-align:center
+}
+body > div {
+	margin:5px auto;
+	border: 2px solid #c00;
+	border-radius: 5px;
+	background-color: #ddd;
+}
+
+body > div > div {
+	margin: 10px 5px;
+}
+
+body > div > div > div:first-child {
+	
+}
+
+body > div > div > img {
+	border: 1px solid black;
+}
+
+body > div > div > div {
+	vertical-align:top;
+	display: inline-block;
+	margin: 5px;
+	width: 10%;
+	white-space:nowrap;
+}
+
+.item_img {
+	box-sizing: border-box;     
+	width:45px;
+	margin: 0;
+}
+
+.button {
+	background-color: cfcfcf;
+	display:inline-block;
+	border: 1px solid #c00;
+	margin: 5px ;
+	font-family: 'Trebuchet MS';
+	font-weight: bold;
+	cursor:pointer;
+	padding: 6px;
+}
+
+.button:hover {
+	background-color:bbb;
+}
+
+.button p {
+	width:100%;
+	margin: auto;
+}
+
+#errorcontainer {
+	display:none; /*Overwritten by JS when needed */
+}
+
+#datacontainer {
+	display:none;
+	transition:width 2s, height 2s
+}
+
+.gold_counter {
+	min-width: 110px;
+	white-space: nowrap;
+	text-align: right;
+}
+
+.gold_counter p {
+	margin: 0px 1px;
+	display: inline-block;
+	width:17px;
+}
+
+.gold_counter img {
+	margin: 0px 1px;
+}
+/*
+.memberplate {
+	display:block;
+	text-align:left;
+	margin: 2px 0px;
+	width:100%;
+}
+
+.memberplate:first-child {
+	border-bottom: 1px solid yellow;
+	height:50px;
+}
+
+.memberplate:nth-child(even) {
+	background-color: #000088;
+}
+
+.memberplate:nth-child(odd) {
+	background-color: #000033;
+}
+
+.memberplate > p {
+	margin: 0px 2px;
+	display:inline-block;
+	font-size:20px;
+}
+
+.membername_on {
+	width:200px;
+}
+
+.membername_off {
+	width:200px;
+	color:#999;
+}
+*/
+
+.errormember:nth-child(even) {
+	background-color: #000033;
+}
+
+.errormember:nth-child(odd) {
+	background-color: #000088;
+}
+
+.errormember:first-child {
+	border-bottom: 1px solid yellow
+}
+
+p {
+	color:black;
+}

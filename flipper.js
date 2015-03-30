@@ -1,60 +1,11 @@
+(function(){ //Module pattern
+
 var API_ENTRY = "http://www.gw2spidy.com/api/"
 var TEST_DATA_URL = localStorage["test_url"] || "www.example.com/test_data.json"
 var USE_TEST_DATA = true
 var SHOW_IMAGES = false
-var watchlist = [
-12247,
-12261,
-12166,
-24273,
-12537,
-12351,
-24342,
-24278,
-24366,
-12255,
-12163,
-24292,
-24343,
-12135,
-12254,
-12341,
-24353,
-20751,
-20138,
-13191,
-13192,
-20323,
-19727,
-38204,
-10282,
-4908,
-11976,
-23136,
-23218,
-13275,
-24500,
-38138,
-38292,
-12329,
-12905,
-12531,
-12500,
-13015,
-12545,
-12229,
-38166,
-37176,
-19969,
-29266,
-12144,
-36731,
-12541,
-12506,
-12241,
-12342,
-33450]
 
+//Formats nice url for API call
 function buildURL(format, version) {
 	version = version || "v0.9"
 	format = format || "json"
@@ -62,14 +13,15 @@ function buildURL(format, version) {
 	return url;
 }
 
-//Start getting data
+//Start getting data, tries localStorage first, otherwise gets new data
 function initData(forceNewRequest) {
 	if (forceNewRequest) {
 		requestData()
 	} else {
-		var items = loadFilteredList()
+		var items = loadList()
 		if (typeof items != "undefined") {
-			var items = filterArrayWithArray(items,watchlist)
+			calcAdditionData(items);
+			items.sort(profitSorter);
 			fillPage(items)
 		} else {
 			requestData() //If we didn't load anything, request fresh data
@@ -79,8 +31,8 @@ function initData(forceNewRequest) {
 
 //Gets new data from remote location
 function requestData() {
-	console.log("requesting new data")
-	var url
+	console.log("Requesting new data")
+	
 	if (USE_TEST_DATA) {
 		$.get(TEST_DATA_URL,onDataReceive)
 	} else {
@@ -173,6 +125,9 @@ function emptyElement(element) {
 
 //Main function, refreshes all elements on the page with itemdata
 function fillPage(itemdata) {
+	if(!itemdata || itemdata.length === 0) {
+		throw new Error("fillPage called without itemdata")
+	}
 	var container = document.getElementById("datacontainer")
 	
 	emptyElement(container)
@@ -275,11 +230,86 @@ function getSavedTime() {
 	return localStorage["update_timestamp"]
 }
 
+var data_item_members = [
+	"data_id",
+	"img",
+	"max_offer_unit_price",
+	"min_sale_unit_price",
+	"name",
+	"offer_availability",
+	"price_last_changed",
+	"rarity",
+	"sale_availability"
+]
+
+//Takes array with items, turns object into array without named keys, runs lz-string compression
+//Returns new data without affecting origional 
+function compressData(data) {
+	var arrayData = [] //New array for arrayified data
+	
+	for(var i =0;i<data.length;i++) {
+		var objArray = [] //Array for single item
+		
+		for(var o=0;o<data_item_members.length;o++) {
+			//For every member in item obj, push it to the new aray
+			objArray.push(data[i][data_item_members[o]])
+		}
+		arrayData.push(objArray)
+	}
+	
+	/*
+	for(var o=0;o<9;o++) {
+		console.log("o now ",o)
+		for(var i=0;i<arrayData.length;i++) {
+			console.log(typeof arrayData[i][o])
+		}
+	}
+	*/
+	
+	var jsonString = JSON.stringify(arrayData)
+	var compressedString = LZString.compress(jsonString)
+	
+	console.log("Saved data size : \nUncompressed:\t"+jsonString.length+"\nCompressed:\t"+compressedString.length)
+	
+	return compressedString
+}
+
+//As above, but in reverse
+function deCompressData(string) {
+	var jsonString = LZString.decompress(string)
+	var jsonData = JSON.parse(jsonString)
+	
+	var data = []
+	
+	for(var i=0;i<jsonData.length;i++) {
+		var obj = {}
+		var oldArray = jsonData[i]
+		
+		for(var o=data_item_members.length-1;o>=0;o--){
+			obj[data_item_members[o]]=oldArray.pop()
+		}
+		data.push(obj)
+	}
+	/*
+	for(var o=0;o<9;o++) {
+		console.log("o now ",o)
+		for(var i=0;i<data.length;i++) {
+			console.log(typeof data[i][data_item_members[o]])
+		}
+	}
+	*/
+	
+	return data
+}
+
 //Saves JSON data to localStorage
-function saveFilteredList(list) {
+function saveList(list) {
 	console.log("Saving filtered data")
+	
+	var compressedData = compressData(list)
+	
 	try  {
-		localStorage["gw2_items"] = JSON.stringify(arrayToObj(list))
+		localStorage["gw2_items"] = compressedData
 		localStorage["update_timestamp"] = Date.now()
 	} catch(e) {
 		if(e.name && e.name == "QuotaExceededError") { //https://developer.mozilla.org/en/docs/Web/API/DOMException .name is prefered over .code
@@ -291,13 +321,14 @@ function saveFilteredList(list) {
 }
 
 //Loads localStorage data and parses to JSON, returns nothing if not found
-function loadFilteredList() {
+function loadList() {
 	var local_data = localStorage["gw2_items"]
 	
 	if(local_data) {
 		console.log("Loading stored data")
-		return objToArray(JSON.parse())
-	} 
+		var new_data = deCompressData(local_data)
+		return new_data
+	}
 }
 
 function filterNoPriceItem(item) {
@@ -313,16 +344,43 @@ function filterLowMarketItem(item) {
 function profitSorter(a,b) {
 	return b.profit_percentage - a.profit_percentage
 }
+
+function condenseArray(data) {
+	data = data.filter(function(element) {return element !== undefined && element !== null})
+}
+
+
+//Get rid of properties we're not going to use
+function dataStrip(data) {
+	for(var i = 0;i<data.length;i++) {
+		var item = data[i]
+		delete item.offer_price_change_last_hour
+		delete item.sale_price_change_last_hour
+		delete item.restriction_level
+		delete item.sub_type_id
+		delete item.type_id
+	}
+}
+
 //Called by either data retrieving function
 function onDataReceive(data) {
 	var data = JSON.parse(data).results
 	//var data = filterArrayWithArray(data,watchlist)
-	saveFilteredList(data)
-	data = data.filter(filterNoPriceItem)
-	data = data.filter(filterLowMarketItem)
-	calcAdditionData(data)
-	data.sort(profitSorter)
-	fillPage(data)
+	
+	condenseArray(data);
+	dataStrip(data);
+	
+	//console.log(data);
+	
+	data = data.filter(filterNoPriceItem);
+	data = data.filter(filterLowMarketItem);
+	
+	saveList(data);
+	
+	calcAdditionData(data);
+	data.sort(profitSorter);
+	
+	fillPage(data);
 }
 
 //Helper for filtering
@@ -369,11 +427,12 @@ function updateTimeText() {
 }
 
 //TODO: Make me an event listener
-window.onload = function() {
+window.addEventListener("load",function() {
 	setupButton()
 	
 	appendLegend(document.getElementById("datacontainer"))
 	
-	
 	initData()
-}
+})
+
+}()) //module pattern end

@@ -36,13 +36,8 @@ function requestData() {
 	if (USE_TEST_DATA) {
 		$.get(TEST_DATA_URL,onDataReceive)
 	} else {
-		$.ajax({
-			url: buildURL(),
-			dataType : "jsonp",
-			succes : onDataReceive
-		})
+		$.get(buildURL(),onDataReceive)
 	}
-
 }
 
 //Makes an element to display gold nicely
@@ -404,7 +399,13 @@ function dataStrip(data) {
 
 //Called by either data retrieving function
 function onDataReceive(data) {
-	var data = JSON.parse(data).results
+	console.log("Received new data!")
+	if(typeof data === "string") {
+		data = JSON.parse(data).results
+	} else {
+		data = data.results
+	}
+	
 	//var data = filterArrayWithArray(data,watchlist)
 	
 	condenseArray(data);

@@ -123,6 +123,31 @@ function emptyElement(element) {
 	}
 }
 
+function createBaseTable() {
+	var table = document.createElement("table")
+	var thead = document.createElement("thead")
+	var item_legend = [
+		"ID",
+		"Name",
+		"Lowest seller",
+		"Highest buyer",
+		"Buyer count",
+		"Seller count",
+		"Profit",
+		"Profit %"
+	]
+	
+	item_legend.forEach(function(text){
+		var td = document.createElement("td")
+		var tn = document.createTextNode(text)
+		td.appendChild(tn)
+		thead.appendChild(td)
+	})
+	table.appendChild(thead)
+	
+	return table
+}
+
 //Main function, refreshes all elements on the page with itemdata
 function fillPage(itemdata) {
 	if(!itemdata || itemdata.length === 0) {
@@ -132,15 +157,53 @@ function fillPage(itemdata) {
 	
 	emptyElement(container)
 	
-	appendLegend(container)
-	appendItems(container,itemdata)
+	var table = createBaseTable()
+	console.log("base table:",table)
+	appendItems(table,itemdata)
+	console.log("finished table:",table)
+	
+	container.appendChild(table) //Don't write to dom until we're done filling the table
+	
+	//appendLegend(container)
+	
 	updateTimeText()
 }
 
 //Add new elements to the container from itemdata
 function appendItems(container,itemdata) {
-	container.style.display="block"
+
+	function appendData(data) {
+		var td = document.createElement("td")
+		var tn = document.createTextNode(data)
+		td.appendChild(tn)
+		tr.appendChild(td)
+	}
 	
+	for(var i=0;i<itemdata.length;i++) {
+		var item = itemdata[i]
+		var tr = document.createElement("tr")
+		
+		appendData(item.data_id)
+		appendData(item.name)
+	
+		tr.appendChild(createGoldCounter(item.min_sale_unit_price,"td"))
+		tr.appendChild(createGoldCounter(item.max_offer_unit_price,"td"))
+	
+		appendData(item.offer_availability)
+		appendData(item.sale_availability)
+	
+		tr.appendChild(createGoldCounter(item.profit,"td"))
+		appendData(Math.round((item.profit/item.min_sale_unit_price)*100)+"%")
+		
+		container.appendChild(tr)
+	}
+	
+	
+
+	//Profit %
+
+	//container.style.display="block"
+	/*
 	itemdata.forEach(function(entry) {
 		var div = document.createElement("div")
 		
@@ -173,6 +236,7 @@ function appendItems(container,itemdata) {
 		
 		container.appendChild(div)
 	})
+	*/
 }
 
 
@@ -201,30 +265,6 @@ function filterArrayWithArray(fullItemList,array) {
 	})
 	return filtered_data
 }
-
-//Both these functions are aids for parsing non *fancyword* arrays with JSON
-//JSON doesn't like [1,2,9000001] and will go over localStorage limit
-function arrayToObj(array) {
-	var obj = {}
-	for (key in array)	{
-		if (array.hasOwnProperty(key)) {
-			obj[key]=array[key]
-		}
-	}
-	return obj
-}
-
-//See arrayToObj above
-function objToArray(obj) {
-	var array = []
-	for (key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			array[key]=obj[key]
-		}
-	}
-	return array
-}
-
 
 function getSavedTime() {
 	return localStorage["update_timestamp"]
@@ -369,8 +409,6 @@ function onDataReceive(data) {
 	
 	condenseArray(data);
 	dataStrip(data);
-	
-	//console.log(data);
 	
 	data = data.filter(filterNoPriceItem);
 	data = data.filter(filterLowMarketItem);

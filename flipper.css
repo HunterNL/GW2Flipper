@@ -13,24 +13,13 @@ body > div {
 	background-color: #ddd;
 }
 
-body > div > div {
-	margin: 10px 5px;
+table {
+	border-collapse: collapse;
+	margin: 5px auto;
 }
 
-body > div > div > div:first-child {
-	
-}
-
-body > div > div > img {
-	border: 1px solid black;
-}
-
-body > div > div > div {
-	vertical-align:top;
-	display: inline-block;
-	margin: 5px;
-	width: 10%;
-	white-space:nowrap;
+td {
+	border: 1px solid #c00;
 }
 
 .item_img {
@@ -64,7 +53,7 @@ body > div > div > div {
 }
 
 #datacontainer {
-	display:none;
+	/*display:none;*/
 	transition:width 2s, height 2s
 }
 
@@ -82,54 +71,6 @@ body > div > div > div {
 
 .gold_counter img {
 	margin: 0px 1px;
-}
-/*
-.memberplate {
-	display:block;
-	text-align:left;
-	margin: 2px 0px;
-	width:100%;
-}
-
-.memberplate:first-child {
-	border-bottom: 1px solid yellow;
-	height:50px;
-}
-
-.memberplate:nth-child(even) {
-	background-color: #000088;
-}
-
-.memberplate:nth-child(odd) {
-	background-color: #000033;
-}
-
-.memberplate > p {
-	margin: 0px 2px;
-	display:inline-block;
-	font-size:20px;
-}
-
-.membername_on {
-	width:200px;
-}
-
-.membername_off {
-	width:200px;
-	color:#999;
-}
-*/
-
-.errormember:nth-child(even) {
-	background-color: #000033;
-}
-
-.errormember:nth-child(odd) {
-	background-color: #000088;
-}
-
-.errormember:first-child {
-	border-bottom: 1px solid yellow
 }
 
 p {

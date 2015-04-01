@@ -32,7 +32,7 @@ function initData(forceNewRequest) {
 //Gets new data from remote location
 function requestData() {
 	console.log("Requesting new data")
-	
+
 	if (USE_TEST_DATA) {
 		$.get(TEST_DATA_URL,onDataReceive)
 	} else {
@@ -45,63 +45,30 @@ function createGoldCounter(count,tag) {
 	function appendCoin(min_count,img_src) {
 		var img = document.createElement("img")
 		img.src = img_src
-		element.appendChild(img) 
-		
-		
+		element.appendChild(img)
+
+
 		var roundedcount=Math.floor(count/min_count)%100
 		var text = document.createElement("p")
 		text.appendChild(document.createTextNode(roundedcount))
 		element.appendChild(text)
 	}
-	
-	
+
 	tag = tag || "div"
-	
+
 	var element = document.createElement(tag)
 	element.className = "gold_counter"
-	
+
 	if (count >= 10000) {
 		appendCoin(10000,"gold.png")
 	}
 	if (count >= 100) {
 		appendCoin(100,"silver.png")
-	}	
+	}
 	appendCoin(1,"copper.png")
-	
-	/*
-	if (count > 9999) {
-		var gold = Math.round(gold/10000)
-		element.appendChild(document.createElement(img).src="gold.png")
-		element.appendChild(document.createTextNode(gold)
-	}
-	*/
-	
-	return element
-}
 
-//Adds the legend to container
-function appendLegend(container) {
-	
-	var div = document.createElement("div")
-	
-	if (SHOW_IMAGES) {
-		var fakeimg = document.createElement("div")
-		fakeimg.className = "item_img"
-		div.appendChild(fakeimg)
-	}
-	
-	appendData(div,"ID")
-	appendData(div,"Name")
-	appendData(div,"Lowest seller")
-	appendData(div,"Highest buyer")
-	appendData(div,"Buyer count")
-	appendData(div,"Seller count")
-	appendData(div,"Profit")
-	appendData(div,"Profit %")
-	
-	//container.appendChild(div)
-	$('#datacontainer').prepend(div);
-	//$('#datacontainer').children().first().before(div);
+
+	return element
 }
 
 //Helper for appendLegend and appendItems
@@ -131,7 +98,7 @@ function createBaseTable() {
 		"Profit",
 		"Profit %"
 	]
-	
+
 	item_legend.forEach(function(text){
 		var td = document.createElement("td")
 		var tn = document.createTextNode(text)
@@ -139,7 +106,7 @@ function createBaseTable() {
 		thead.appendChild(td)
 	})
 	table.appendChild(thead)
-	
+
 	return table
 }
 
@@ -149,18 +116,18 @@ function fillPage(itemdata) {
 		throw new Error("fillPage called without itemdata")
 	}
 	var container = document.getElementById("datacontainer")
-	
+
 	emptyElement(container)
-	
+
 	var table = createBaseTable()
 	console.log("base table:",table)
 	appendItems(table,itemdata)
 	console.log("finished table:",table)
-	
+
 	container.appendChild(table) //Don't write to dom until we're done filling the table
-	
+
 	//appendLegend(container)
-	
+
 	updateTimeText()
 }
 
@@ -173,65 +140,26 @@ function appendItems(container,itemdata) {
 		td.appendChild(tn)
 		tr.appendChild(td)
 	}
-	
+
 	for(var i=0;i<itemdata.length;i++) {
 		var item = itemdata[i]
 		var tr = document.createElement("tr")
-		
+
 		appendData(item.data_id)
 		appendData(item.name)
-	
+
 		tr.appendChild(createGoldCounter(item.min_sale_unit_price,"td"))
 		tr.appendChild(createGoldCounter(item.max_offer_unit_price,"td"))
-	
+
 		appendData(item.offer_availability)
 		appendData(item.sale_availability)
-	
+
 		tr.appendChild(createGoldCounter(item.profit,"td"))
 		appendData(Math.round((item.profit/item.min_sale_unit_price)*100)+"%")
-		
+
 		container.appendChild(tr)
 	}
-	
-	
 
-	//Profit %
-
-	//container.style.display="block"
-	/*
-	itemdata.forEach(function(entry) {
-		var div = document.createElement("div")
-		
-		if (SHOW_IMAGES) {
-			var img = document.createElement("img")
-			img.src=entry.img
-			img.className = "item_img"
-			div.appendChild(img)
-		}
-		
-		//0.85 is 15% transaction cost (kinda decprecated with item.profit)
-		var profit = entry.min_sale_unit_price*.85 - entry.max_offer_unit_price
-		
-		appendData(div,entry.data_id) //ID
-		appendData(div,entry.name) //Name
-		
-		div.appendChild(createGoldCounter(entry.min_sale_unit_price)) //Sell price
-		div.appendChild(createGoldCounter(entry.max_offer_unit_price)) //Buy price
-		
-		function loground(x) {
-			return Math.round((Math.log(x)/Math.LN10)*10)/10
-		}
-		
-		appendData(div,loground(entry.offer_availability)) //Buyer count
-		appendData(div,loground(entry.sale_availability)) //Seller count
-
-		div.appendChild(createGoldCounter(profit)) //Profit
-		
-		appendData(div,Math.round((profit/entry.min_sale_unit_price)*100)+"%") //Profit %
-		
-		container.appendChild(div)
-	})
-	*/
 }
 
 
@@ -241,24 +169,10 @@ function calcAdditionData(data) {
 		//item.profit_percentage = Math.round((item.profit/item.min_sale_unit_price)*100)
 		item.profit_percentage = Math.round((item.profit/item.max_offer_unit_price)*100)
 	}
-	
+
 	data.forEach(function(entry) {
 		calculateAdditionItemData(entry)
 	})
-}
-
-
-//Takes the full 10MB list of items and and array with itemID's
-function filterArrayWithArray(fullItemList,array) {
-	var array = valueToKey(array)
-
-	var filtered_data = []
-	fullItemList.forEach(function(entry) {
-		if (typeof array[entry.data_id] != "undefined") {
-			filtered_data[entry.data_id]=entry
-		}
-	})
-	return filtered_data
 }
 
 function getSavedTime() {
@@ -278,34 +192,25 @@ var data_item_members = [
 ]
 
 //Takes array with items, turns object into array without named keys, runs lz-string compression
-//Returns new data without affecting origional 
+//Returns new data without affecting origional
 function compressData(data) {
 	var arrayData = [] //New array for arrayified data
-	
+
 	for(var i =0;i<data.length;i++) {
 		var objArray = [] //Array for single item
-		
+
 		for(var o=0;o<data_item_members.length;o++) {
 			//For every member in item obj, push it to the new aray
 			objArray.push(data[i][data_item_members[o]])
 		}
 		arrayData.push(objArray)
 	}
-	
-	/*
-	for(var o=0;o<9;o++) {
-		console.log("o now ",o)
-		for(var i=0;i<arrayData.length;i++) {
-			console.log(typeof arrayData[i][o])
-		}
-	}
-	*/
-	
+
 	var jsonString = JSON.stringify(arrayData)
 	var compressedString = LZString.compress(jsonString)
-	
+
 	console.log("Saved data size : \nUncompressed:\t"+jsonString.length+"\nCompressed:\t"+compressedString.length)
-	
+
 	return compressedString
 }
 
@@ -313,36 +218,28 @@ function compressData(data) {
 function deCompressData(string) {
 	var jsonString = LZString.decompress(string)
 	var jsonData = JSON.parse(jsonString)
-	
+
 	var data = []
-	
+
 	for(var i=0;i<jsonData.length;i++) {
 		var obj = {}
 		var oldArray = jsonData[i]
-		
+
 		for(var o=data_item_members.length-1;o>=0;o--){
 			obj[data_item_members[o]]=oldArray.pop()
 		}
 		data.push(obj)
 	}
-	/*
-	for(var o=0;o<9;o++) {
-		console.log("o now ",o)
-		for(var i=0;i<data.length;i++) {
-			console.log(typeof data[i][data_item_members[o]])
-		}
-	}
-	*/
-	
+
 	return data
 }
 
 //Saves JSON data to localStorage
 function saveList(list) {
 	console.log("Saving filtered data")
-	
+
 	var compressedData = compressData(list)
-	
+
 	try  {
 		localStorage["gw2_items"] = compressedData
 		localStorage["update_timestamp"] = Date.now()
@@ -358,7 +255,7 @@ function saveList(list) {
 //Loads localStorage data and parses to JSON, returns nothing if not found
 function loadList() {
 	var local_data = localStorage["gw2_items"]
-	
+
 	if(local_data) {
 		console.log("Loading stored data")
 		var new_data = deCompressData(local_data)
@@ -371,7 +268,7 @@ function filterNoPriceItem(item) {
 }
 
 function filterLowMarketItem(item) {
-	return (item.offer_availability + item.sale_availability > 2000) && 
+	return (item.offer_availability + item.sale_availability > 2000) &&
 	(item.offer_availability > 500) &&
 	(item.sale_availability > 500)
 }
@@ -405,31 +302,19 @@ function onDataReceive(data) {
 	} else {
 		data = data.results
 	}
-	
-	//var data = filterArrayWithArray(data,watchlist)
-	
+
 	condenseArray(data);
 	dataStrip(data);
-	
+
 	data = data.filter(filterNoPriceItem);
 	data = data.filter(filterLowMarketItem);
-	
+
 	saveList(data);
-	
+
 	calcAdditionData(data);
 	data.sort(profitSorter);
-	
-	fillPage(data);
-}
 
-//Helper for filtering
-// [123,456,789] -> r[123]==true r[456]==true r[789] == true
-function valueToKey(oldArray) {
-	var newArray = []
-	oldArray.forEach(function(entry) {
-		newArray[entry]=true
-	})
-	return newArray
+	fillPage(data);
 }
 
 //Adds listener to force update button
@@ -455,11 +340,11 @@ function updateTimeText() {
 			return text
 		}
 	}
-	
+
 	var em = document.getElementById("update_timer")
 	var last_update_time = getSavedTime()
 	var textnode = getChildTextNode(em)
-	
+
 	if (typeof last_update_time != "undefined") {
 		//We have a saved update time
 		var secondsSinceUpdate = (Date.now() - last_update_time) / 1000
@@ -472,9 +357,7 @@ function updateTimeText() {
 //TODO: Make me an event listener
 window.addEventListener("load",function() {
 	setupButton()
-	
-	appendLegend(document.getElementById("datacontainer"))
-	
+
 	initData()
 })
 

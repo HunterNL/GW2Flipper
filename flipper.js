@@ -435,6 +435,10 @@ function valueToKey(oldArray) {
 //Adds listener to force update button
 function setupButton() {
 	var button = document.getElementById("updateItemButton")
+	if(USE_TEST_DATA) {
+		button.className +=" using_test_data"
+	}
+
 	button.addEventListener("click", function(event) {
 		initData(true)
 	})

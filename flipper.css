@@ -22,6 +22,11 @@ td {
 	border: 1px solid #c00;
 }
 
+.using_test_data:after {
+	content: ">Using test data<";
+	text-decoration: underline;
+}
+
 .item_img {
 	box-sizing: border-box;     
 	width:45px;

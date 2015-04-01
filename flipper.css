@@ -16,6 +16,11 @@ body > div {
 table {
 	border-collapse: collapse;
 	margin: 5px auto;
+	background-color: #ddd;
+}
+
+tr:nth-child(even) {
+	background-color: #ccc
 }
 
 td {
@@ -28,7 +33,7 @@ td {
 }
 
 .item_img {
-	box-sizing: border-box;     
+	box-sizing: border-box;
 	width:45px;
 	margin: 0;
 }
@@ -53,15 +58,6 @@ td {
 	margin: auto;
 }
 
-#errorcontainer {
-	display:none; /*Overwritten by JS when needed */
-}
-
-#datacontainer {
-	/*display:none;*/
-	transition:width 2s, height 2s
-}
-
 .gold_counter {
 	min-width: 110px;
 	white-space: nowrap;
@@ -79,5 +75,5 @@ td {
 }
 
 p {
-	color:black;
+	color:#333;
 }

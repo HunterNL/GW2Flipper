@@ -85,8 +85,8 @@ function emptyElement(element) {
 	}
 }
 
-function createBaseTable() {
-	var table = document.createElement("table");
+function createBaseTable(baseTable) {
+	var table = baseTable || document.createElement("table");
 	var thead = document.createElement("thead");
 	var item_legend = [
 		"ID",
@@ -119,7 +119,7 @@ function fillPage(itemdata) {
 
 	emptyElement(container);
 
-	var table = createBaseTable();
+	var table = createBaseTable(container);
 	console.log("base table:",table);
 	appendItems(table,itemdata);
 	console.log("finished table:",table);

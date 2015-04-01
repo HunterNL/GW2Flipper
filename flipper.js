@@ -3,7 +3,7 @@
 var API_ENTRY = "http://www.gw2spidy.com/api/";
 var TEST_DATA_URL = localStorage["test_url"] || "www.example.com/test_data.json";
 var USE_TEST_DATA = true;
-var SHOW_IMAGES = false;
+var SHOW_IMAGES = true;
 
 //Formats nice url for API call
 function buildURL(format, version) {
@@ -99,6 +99,11 @@ function createBaseTable(baseTable) {
 		"Profit %"
 	];
 
+	if(SHOW_IMAGES) {
+		item_legend.unshift("");
+	}
+
+
 	item_legend.forEach(function(text){
 		var td = document.createElement("td");
 		var tn = document.createTextNode(text);
@@ -115,16 +120,16 @@ function fillPage(itemdata) {
 	if(!itemdata || itemdata.length === 0) {
 		throw new Error("fillPage called without itemdata");
 	}
+
+	console.log("Filling page with data: ",itemdata);
+
 	var container = document.getElementById("datacontainer");
 
 	emptyElement(container);
 
 	var table = createBaseTable(container);
-	console.log("base table:",table);
 	appendItems(table,itemdata);
-	console.log("finished table:",table);
-
-	container.appendChild(table); //Don't write to dom until we're done filling the table
+	//TODO Use documentFragment?
 
 	//appendLegend(container)
 
@@ -144,6 +149,15 @@ function appendItems(container,itemdata) {
 	for(var i=0;i<itemdata.length;i++) {
 		var item = itemdata[i];
 		var tr = document.createElement("tr");
+
+		if(SHOW_IMAGES) {
+			var td=document.createElement("td");
+			var img = new Image(32,32);
+			img.src = item.img;
+			td.appendChild(img);
+			tr.appendChild(td);
+
+		}
 
 		appendData(item.data_id);
 		appendData(item.name);
